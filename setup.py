@@ -1,0 +1,25 @@
+
+from setuptools import setup, find_packages
+
+setup(
+    name='backpyf.binance',
+    version='0.0.0.001',
+    packages=find_packages(),
+    description='''This module connects your BackPy strategy 
+    with the real market using binance.''',
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
+    author='Diego',
+    url='https://github.com/Diego-Cores/BackPy-binance-connector',
+    license='MIT',
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3',
+    ],
+    install_requires=[
+        'pandas>=1.3.0',
+        'numpy>=1.16.5',
+        'backpyf==0.9.2.038',
+        'binance-futures-connector==4.1.0',
+    ],
+)
