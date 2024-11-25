@@ -1,23 +1,36 @@
 
-Important Notice: Understanding the Risks of Trading and Financial Data Analysis.
-    Trading financial instruments and using financial data for analysis involves significant risks, 
-    including the possibility of loss of capital. Markets can be volatile and data may contain errors. 
-    Before engaging in trading activities or using financial data, it is important to understand and 
-    carefully consider these risks and seek independent financial advice if necessary.
+Important Notice: Understanding the Risks of Real-Time Trading with BackPy-binance-connector
 
-Disclaimer Regarding Accuracy of BackPy.
-    It is essential to acknowledge that the backtesting software utilized
-    for financial chart analysis may not be entirely accurate and could contain errors, 
-    leading to results that may not reflect real-world outcomes.
+Disclaimer Regarding Real-Time Trading Risks:
+BackPy-binance-connector is an extension designed to connect BackPy to 
+ live cryptocurrency markets via the Binance API.
+ Trading in live markets involves substantial risk, 
+ including the possibility of significant financial losses. 
+ Cryptocurrency markets are highly volatile and operate 24/7, 
+ with prices subject to rapid and unpredictable changes. 
+ By using this software, you acknowledge that you may incur losses that exceed your initial investment.
 
-Disclaimer Regarding Financial Advice.
-    It is crucial to emphasize that the backtesting software, including BackPy, 
-    should not be construed as a substitute for professional financial advice. 
-    While BackPy provides tools for financial data analysis, it does not constitute financial advice or recommendations for trading decisions. 
-    Users should exercise caution and seek advice from qualified financial professionals before making any financial decisions based on the results obtained from BackPy or any similar software.
+Disclaimer Regarding API Reliability:
+The BackPy-binance-connector relies on the Binance API to fetch real-time data and execute trades. 
+ The reliability of this API is beyond the control of this software. Connectivity issues, 
+ API errors, or unexpected changes in Binance's API terms may impact the functionality of 
+ this tool and lead to unintended consequences, such as incorrect data analysis or failed trade executions.
 
-Terms and Conditions.
-    By using BackPy, you acknowledge that you have read and understood the 
-    above notices and disclaimers and agree to abide by them. Your use of 
-    BackPy constitutes your acceptance of these terms and conditions. If you 
-    do not agree with these terms, you should not use BackPy.
+Disclaimer Regarding Automation Risks:
+This software allows for automated interaction with live markets. 
+ Automated trading can amplify both gains and losses, and misconfigurations in the software 
+ or user-defined strategies may result in undesirable outcomes. 
+ Users must carefully validate their strategies in a simulated environment before deploying them in real markets.
+
+Disclaimer Regarding Financial Advice:
+BackPy-binance-connector is a tool for real-time market interaction and does not 
+ constitute financial advice or recommendations for trading decisions. 
+ Users are solely responsible for their financial actions and outcomes. 
+ It is strongly recommended to consult with qualified financial professionals before making any trading decisions based on the use of this software.
+
+Terms and Conditions
+
+- By using BackPy-binance-connector, you acknowledge and accept the risks and limitations outlined in this notice.
+- You understand that this software is provided "as is" under the MIT License, without warranty of any kind.
+- The authors and contributors of BackPy-binance-connector are not liable for any losses, damages, or liabilities arising from its use.
+- Use of this software must comply with all applicable laws and regulations in your jurisdiction, including those governing cryptocurrency trading.
