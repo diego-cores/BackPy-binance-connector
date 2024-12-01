@@ -1,5 +1,4 @@
 backpyf_connector/__pycache__/
 .vscode/
 .vtest/
-.env
 tests

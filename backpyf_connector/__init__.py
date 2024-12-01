@@ -4,7 +4,7 @@ Back Test Py Binance Connector.
 BackPy-binance-connector is a library for creating strategies and automating them in real life using the Binance API.
 
 Version:
-    0.0.0.001
+    0.0.3a1
 
 Repository:
     https://github.com/Diego-Cores/BackPy-binance-connector
@@ -33,10 +33,19 @@ License:
     SOFTWARE.
 """
 
-from . import main
-from . import tradetools
-from . import strategy
-from . import utils
+from .strategy import StrategyClassReal
+from ._commons import (
+    __recvWindow,
+    __function,
+    __alert,
+    __logs,
+)
+from .main import (
+    generate_class, 
+    generate_loop,
+    )
+
+from . import tradetools as tools
 
 __doc__ = """
 BackPy-binance-connector documentation.
@@ -56,8 +65,12 @@ Important Notice:
 """
 
 __all__ = [
-    'main',
-    'tradetools',
-    'strategy',
-    'utils',
+    'StrategyClassReal',
+    'generate_class',
+    'generate_loop',
+    'tools',
+    '__recvWindow',
+    '__function',
+    '__alert',
+    '__logs',
 ]

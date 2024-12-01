@@ -1,19 +1,14 @@
 
 from datetime import datetime, timedelta
 import pandas as pd
-import numpy as np
 
-from . import main
-from main import client, __logs
-
-recvWindow = 6000
-function = client.new_order # client.new_order # client.new_order_test
+from . import _commons
 
 def get_balance():
     """
     Get balance
     """
-    info_bl = client.balance(recvWindow=recvWindow)
+    info_bl = _commons.__client.balance(recvWindow=_commons.__recvWindow)
     for i in range(len(info_bl)):
         if info_bl[i]['asset'].upper() == 'USDT': 
             return float(info_bl[i]['availableBalance'])
@@ -22,14 +17,14 @@ def get_commission(symbol):
     """
     Get commission
     """
-    commission_info = client.commission_rate(symbol=symbol, recvWindow=recvWindow)
+    commission_info = _commons.__client.commission_rate(symbol=symbol, recvWindow=_commons.__recvWindow)
     return float(commission_info['takerCommissionRate'])
 
 def get_quantity_precision_symbol(symbol):
     """
     Get quantity precision of the symbol
     """
-    for i in client.exchange_info()['symbols']:
+    for i in _commons.__client.exchange_info()['symbols']:
         if i['symbol'] == symbol:
             return i['quantityPrecision']
     return 0
@@ -38,8 +33,8 @@ def fetch_data(symbol, interval, last=50):
     """
     Get the last candle data.
     """
-    klines = pd.DataFrame(client.klines(
-        symbol=symbol, interval=interval, limit=last, recvWindow=recvWindow), 
+    klines = pd.DataFrame(_commons.__client.klines(
+        symbol=symbol, interval=interval, limit=last, recvWindow=_commons.__recvWindow), 
         columns=['timestamp', 
                  'Open', 
                  'High', 
@@ -69,15 +64,15 @@ def place_order(symbol, side, quantity, stop_price=None, take_profit=None):
     quantity =  float(str(quantity)[:str(quantity).find('.')+1+get_quantity_precision_symbol(symbol)])
     
     if quantity <= 0:
-        if __logs: print('Place order error.')
+        if _commons.__logs: print('Place order error.')
         return 0, 0, 0
 
-    order = function(
+    order = _commons.__function(
         symbol=symbol,
         side=side,
         type='MARKET',
         quantity=quantity,
-        recvWindow=recvWindow,
+        recvWindow=_commons.__recvWindow,
     )
 
     stop_loss_order = 0
@@ -105,7 +100,7 @@ def place_order(symbol, side, quantity, stop_price=None, take_profit=None):
             quantity=quantity,
         )
 
-    if __logs: print('Place order successful.')
+    if _commons.__logs: print('Place order successful.')
     return order, stop_loss_order, take_profit_order
 
 def create_order(symbol, side, quantity, price, type):
@@ -115,7 +110,7 @@ def create_order(symbol, side, quantity, price, type):
     quantity =  float(str(quantity)[:str(quantity).find('.')+1+get_quantity_precision_symbol(symbol)])
     price = float(str(price)[:str(price).find('.')+get_quantity_precision_symbol(symbol)])
 
-    order_ = function(
+    order_ = _commons.__function(
                 symbol=symbol,
                 side='SELL' if side == 'BUY' else 'BUY',
                 type=type,
@@ -123,26 +118,26 @@ def create_order(symbol, side, quantity, price, type):
                 quantity=quantity,
                 # reduceOnly=True,
                 closePosition=True,
-                recvWindow=recvWindow,
+                recvWindow=_commons.__recvWindow,
             )
 
-    if __logs: print('Create order successful.')
+    if _commons.__logs: print('Create order successful.')
     return order_
 
 def cancel_order(symbol, id):
     
-    if __logs: print('Cancel order successful.')
-    return client.cancel_order(symbol=symbol,
+    if _commons.__logs: print('Cancel order successful.')
+    return _commons.__client.cancel_order(symbol=symbol,
                                orderId=str(int(id)),
-                               recvWindow=recvWindow)
+                               recvWindow=_commons.__recvWindow)
 
 def convert_to_float(data, include):
     data[include] = data[include].astype(float)
     return data
 
-def open_orders(symbol, id):
-    data = pd.DataFrame(client.get_all_orders(symbol=symbol, orderId=id, 
-                                              recvWindow=recvWindow))[[
+def open_orders(symbol, id=None):
+    data = pd.DataFrame(_commons.__client.get_all_orders(symbol=symbol, orderId=id, 
+                                              recvWindow=_commons.__recvWindow))[[
         'orderId',
         'symbol',
         'status',
@@ -168,7 +163,7 @@ def open_orders(symbol, id):
     return convert_to_float(data, include)
 
 def open_trades(symbol):
-    data = client.get_position_risk(symbol=symbol, recvWindow=recvWindow)
+    data = _commons.__client.get_position_risk(symbol=symbol, recvWindow=_commons.__recvWindow)
 
     if not data == []:
         data = pd.DataFrame(data)[[
@@ -179,7 +174,7 @@ def open_trades(symbol):
             'positionSide', 
             'unRealizedProfit'
         ]]
-        extended_ = pd.DataFrame(client.get_account_trades(symbol=symbol), 
+        extended_ = pd.DataFrame(_commons.__client.get_account_trades(symbol=symbol), 
                                 columns=['time','id','side'])
 
         data['time'] = extended_['time']
@@ -208,7 +203,7 @@ def generate_more(function, days=30):
         next = now-timedelta(days=5)
 
         data.extend(function(end=int(now.timestamp() * 1000), 
-                             start=int(next.timestamp() * 1000)))
+                             start=int(next.timestamp() * 1000))[::-1])
         
         now = next
 
@@ -217,13 +212,13 @@ def generate_more(function, days=30):
         data.extend(function(
             end=int(now.timestamp() * 1000),
             start=int((now-timedelta(days=days_f)).timestamp() * 1000)
-            ))
+            )[::-1])
 
     return data
 
 def close_trades(symbol):
     data = generate_more(
-        lambda end, start: client.get_account_trades(symbol=symbol, 
+        lambda end, start: _commons.__client.get_account_trades(symbol=symbol, 
                                                      startTime=start, 
                                                      endTime=end), days=30)
 

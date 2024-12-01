@@ -6,13 +6,9 @@ import backpyf as bk
 import numpy as np
 import pandas as pd
 
-from . import main
-from . import tradetools
+from . import tradetools as tools
 
-import tradetools as tools
-import main as main
- 
-class ModStrateyClass(bk.StrategyClass):
+class StrategyClassReal(bk.StrategyClass):
     def __init__(self, symbol, interval, width, commission:float = 0) -> None: 
         """
         __init__
@@ -72,7 +68,7 @@ class ModStrateyClass(bk.StrategyClass):
         self.low = data["Low"].iloc[-1]
         self.close = data["Close"].iloc[-1]
         self.volume = data["Volume"].iloc[-1]
-        self.date = data.index[-1]
+        self.date = data.index[-1]+self.width
 
         self._StrategyClass__data = data
 
