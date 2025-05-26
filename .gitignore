@@ -1,4 +1,4 @@
-backpyf_connector/__pycache__/
-.vscode/
-.vtest/
+backpyf_connector/__pycache__
+.vscode
 tests
+venv

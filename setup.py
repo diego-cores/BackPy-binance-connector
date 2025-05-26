@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='backpyf_binance',
-    version='0.0.3a1',
+    version='0.0.4a1',
     packages=find_packages(),
     description='This module connects your BackPy strategy with the real market using binance.',
     long_description=open('README.md').read(),
@@ -16,9 +16,13 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     install_requires=[
-        'backpyf @ git+https://github.com/Diego-Cores/BackPy.git@future_version',
+        'backpyf @ git+https://github.com/diego-cores/BackPy.git@main',
         'binance-futures-connector==4.1.0',
         'pandas>=1.3.0',
         'numpy>=1.16.5',
     ],
+    extras_require={
+        'optional': [
+            'python-telegram-bot>=21.11.1',
+    ]}
 )

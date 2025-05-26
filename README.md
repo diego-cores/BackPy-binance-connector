@@ -2,7 +2,7 @@
 # BackPy-binance-connector
 BackPy-binance-connector is a library for creating strategies and automating them in real life using the Binance API.
 
-  #### Version: 0.0.3a1
+  #### Version: 0.0.4a1
 
 It is a library that seeks to expand the functionalities of BackPy by 
 providing the possibility of carrying out real trading using the Binance API.
