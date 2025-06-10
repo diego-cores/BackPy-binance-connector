@@ -55,7 +55,7 @@ def set_data(symbol:str, interval:str, leverage:int,
             _commons.__client.change_leverage(symbol=symbol, leverage=leverage, 
                                             recvWindow=_commons.__recvWindow)
         except ClientError:
-            print_log(f"⚠️ Connection to Binance error.\nActual ip: {_commons.__ip_acc}.", alert=True)
+            print_log(f"⚠️ Connection to Binance or Timestamp error.\nActual ip: {_commons.__ip_acc}.", alert=True)
             te.sleep(30); continue
         break
 

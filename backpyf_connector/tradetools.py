@@ -175,7 +175,7 @@ def open_trades(symbol):
             'unRealizedProfit'
         ]]
         extended_ = pd.DataFrame(_commons.__client.get_account_trades(symbol=symbol), 
-                                columns=['time','id','side'])
+                                columns=['time','id','side']).iloc[-1]
 
         data['time'] = extended_['time']
         data['id'] = extended_['id']
