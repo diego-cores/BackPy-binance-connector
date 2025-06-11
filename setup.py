@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='backpyf_binance',
-    version='0.0.5a1',
+    version='0.1.6a2',
     packages=find_packages(),
     description='This module connects your BackPy strategy with the real market using binance.',
     long_description=open('README.md').read(),

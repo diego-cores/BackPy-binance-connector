@@ -41,7 +41,7 @@ class StrategyClassReal(bk.StrategyClass):
 
     def __trades_updater(self, commission:float = None):
         """
-        Update trades variables.
+        Update trades variables
         """
         self._StrategyClass__trades_ac = tools.open_trades(symbol=self.icon)
         self._StrategyClass__trades_cl = tools.close_trades(symbol=self.icon)
@@ -52,7 +52,7 @@ class StrategyClassReal(bk.StrategyClass):
 
     def __data_updater(self, data:pd.DataFrame) -> None:
         """
-        Data updater.
+        Data updater
 
         Updates all data with the provided DataFrame.
 
@@ -74,7 +74,7 @@ class StrategyClassReal(bk.StrategyClass):
 
     def __before(self, data = pd.DataFrame(), commission:float = None):
         """
-        Before.
+        Before
 
         This function is used to run trades and other operations.
 
@@ -92,7 +92,7 @@ class StrategyClassReal(bk.StrategyClass):
     
     def prev(self, label:str = None, last:int = None) -> pd.DataFrame:
         """
-        Prev.
+        Prev
 
         This function returns the values of `data`.
         
@@ -121,7 +121,7 @@ class StrategyClassReal(bk.StrategyClass):
     
     def prev_trades_cl(self, label:str = None, last:int = None) -> pd.DataFrame:
         """
-        Prev of trades closed.
+        Prev of trades closed
 
         This function returns the values of `trades_cl`.
 
@@ -157,7 +157,7 @@ class StrategyClassReal(bk.StrategyClass):
     
     def prev_trades_ac(self, label:str = None, last:int = None) -> pd.DataFrame:
         """
-        Prev of trades active.
+        Prev of trades active
 
         This function returns the values of `trades_ac`.
 
@@ -190,21 +190,21 @@ class StrategyClassReal(bk.StrategyClass):
     def act_open(self, type:bool = 1, stop_loss:int = np.nan, 
                  take_profit:int = np.nan, amount:int = np.nan) -> None:
         """
-        Opens an action for trading. (REAL)
+        Opens an action for trading (REAL)
 
         This function opens a long or short position. 
 
-        Warning:
+        Note:
             If you leave your position without 'stop loss' and 'takeprofit', 
             your trade will be counted as closed, and you can't modify or close it.
 
         Args:
             type (bool): 0 for sell, 1 for buy. Other values Python evaluates 
-                        as booleans are supported.
+                as booleans are supported.
             stop_loss (int): Price for stop loss. If np.nan or None, no stop loss 
-                            will be set.
+                will be set.
             take_profit (int): Price for take profit. If np.nan or None, no take 
-                              profit will be set.
+                profit will be set.
             amount (int): Amount of points for the trade.
         """
 
@@ -247,7 +247,7 @@ class StrategyClassReal(bk.StrategyClass):
     
     def act_close(self, index:int = 0) -> None:
         """
-        Close an active trade.
+        Close an active trade
 
         Args:
             index (int): The index of the active trade you want to close.
@@ -263,7 +263,7 @@ class StrategyClassReal(bk.StrategyClass):
 
     def __act_close(self, index:int = 0) -> None:
         """
-        Close an active trade. (REAL)
+        Close an active trade (REAL)
 
         Note:
             This is a hidden function intended to prevent user modification.
@@ -298,9 +298,9 @@ class StrategyClassReal(bk.StrategyClass):
     def act_mod(self, index:int = 0, new_stop:int = None, 
                 new_take:int = None) -> None:
         """
-        Modify an active trade. (REAL)
+        Modify an active trade (REAL)
 
-        Alerts:
+        Note:
             If an invalid stop loss or take profit is provided, the program will
             return None and will not execute any changes.
 

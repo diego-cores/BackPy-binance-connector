@@ -1,13 +1,14 @@
-![BackPy-binance-connector logo](images/logo.png)
+![BackPy-binance-connector logo](images/logo.png)  
+![Version](https://img.shields.io/badge/version-0.1.6a2-blue)
+![Status](https://img.shields.io/badge/status-alfa-red)
+
 # BackPy-binance-connector
-BackPy-binance-connector is a library for creating strategies and automating them in real life using the Binance API.
 
-  #### Version: 0.0.5a1
-
+**BackPy** is a library for creating strategies and automating them in real life using the Binance API.
 It is a library that seeks to expand the functionalities of BackPy by 
 providing the possibility of carrying out real trading using the Binance API.
 
-## Important motices:
+## ⚠️ Important Notices
 
 Please make sure to read the following before using this software:
 
@@ -16,11 +17,10 @@ Please make sure to read the following before using this software:
 
 By using this software, you acknowledge that you have read and agree to the terms outlined in these documents.
 
-## How to install backpy with pip:
+## 📦 How to install backpy-binance-connector with pip
 
 1. Download the latest version from GitHub
 - Go to this project GitHub page.
-- Look for the "Releases" or "Latest release" section.
 - Download the ZIP file of the latest version of the project.
 2. Unzip the ZIP file
 - Unzip the ZIP file you downloaded.
