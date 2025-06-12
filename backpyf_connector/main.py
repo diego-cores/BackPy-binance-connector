@@ -5,6 +5,21 @@ This module contains the main loop and the connection to the Binance client.
 
 Functions:
     print_log: This function handles logs by sending them to the console and others.
+    add_rec: This function adds the record to the '_commons.__rec' variable.
+    set_client: Function that initializes the Binance client.
+    set_data: This function set the symbol data and client configuration.
+    set_search: Request symbol data to Binance API.
+    calc_close: This function calculates when the next closing will be.
+    get_public_ip: This function uses 'Ipify' to return the current IP.
+    check_binance_connection_futures: This function verifies the connection to Binance Futures.
+    check_binance_connection: This function verifies the connection to Binance.
+    check_connection: This function verifies that all services remain connected.
+    cls_instance: Create instance of 'cls', check exceptions.
+    instance_execute: Executes the 'instance' strategy.
+    generate_loop: This function generates the main loop.
+    class_execute: Execute your trading strategy in REAL once.
+    class_group: Execute your trading strategy in REAL by automating it.
+    telegram_bot: Run the Telegram bot by starting a new thread.
 """
 
 from binance.um_futures import UMFutures
@@ -314,7 +329,7 @@ def generate_loop(function:callable, time_offset:float = 0, time_less:int = -60,
             ):
             try:
                 function()
-                print_log(f"Executed totaly: {this_close}", alert=True)
+                print_log(f"Executed: {this_close}", alert=True)
                 history[this_close] = True
             except Exception as e:
                 print_log(f"Error when executing the strategy: {e}", alert=True)
@@ -371,7 +386,7 @@ def class_group(api_key:str, secret_key:str,
     """
     Class group
 
-    Execute your trading strategy in REAL time by automating it.
+    Execute your trading strategy in REAL by automating it.
 
     Note:
         This will be executed in the real market using the Binance API. 

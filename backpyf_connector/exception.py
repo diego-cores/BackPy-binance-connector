@@ -1,6 +1,6 @@
 """
-Exceptions.
-----
+Exception module.
+
 Custom exceptions.
 """
 

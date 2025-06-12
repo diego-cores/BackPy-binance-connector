@@ -1,3 +1,11 @@
+"""
+Strategy module.
+
+This module contains the strategy you need to inherit to connect your strategy to real.
+
+Classes:
+    StrategyClassReal: Inherit this class to keep documentation and features up to date.
+"""
 
 import backpyf.exception as exception
 import backpyf.utils as utils
