@@ -1,5 +1,5 @@
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pandas as pd
 
 from . import _commons
@@ -196,18 +196,18 @@ def open_trades(symbol):
 
 def generate_more(function, days=30):
     data = []
-    requests = 6
+    requests_days = 6
 
-    now = datetime.now()
-    for i in range(days//requests):
-        next = now-timedelta(days=5)
+    now = datetime.now(timezone.utc)
+    for i in range(days//requests_days):
+        next = now-timedelta(days=requests_days)
 
         data.extend(function(end=int(now.timestamp() * 1000), 
                              start=int(next.timestamp() * 1000))[::-1])
         
         now = next
 
-    days_f = days-days//requests*5
+    days_f = days-days//requests_days*requests_days
     if days_f > 0:
         data.extend(function(
             end=int(now.timestamp() * 1000),

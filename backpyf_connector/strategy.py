@@ -80,7 +80,7 @@ class StrategyClassReal(bk.StrategyClass):
 
         self._StrategyClass__data = data
 
-    def __before(self, data = pd.DataFrame(), commission:float = None):
+    def __before(self, data = pd.DataFrame(), commission:float = None) -> None:
         """
         Before
 
@@ -94,10 +94,7 @@ class StrategyClassReal(bk.StrategyClass):
             self.__trades_updater(commission=commission)
 
         self.next()
-        self.__trades_updater()
 
-        return self._StrategyClass__trades_ac, self._StrategyClass__trades_cl
-    
     def prev(self, label:str = None, last:int = None) -> pd.DataFrame:
         """
         Prev
