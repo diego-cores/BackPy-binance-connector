@@ -125,6 +125,9 @@ def create_order(symbol, side, quantity, price, type):
     return order_
 
 def cancel_order(symbol, id):
+    """
+    Cancel a order
+    """
     
     if _commons.__logs: print('Cancel order successful.')
     return _commons.__client.cancel_order(symbol=symbol,
@@ -132,10 +135,18 @@ def cancel_order(symbol, id):
                                recvWindow=_commons.__recvWindow)
 
 def convert_to_float(data, include):
+    """
+    Convert to float
+    """
+
     data[include] = data[include].astype(float)
     return data
 
 def open_orders(symbol, id=None):
+    """
+    Open orders
+    """
+
     data = pd.DataFrame(_commons.__client.get_all_orders(symbol=symbol, orderId=id, 
                                               recvWindow=_commons.__recvWindow))[[
         'orderId',
@@ -163,6 +174,10 @@ def open_orders(symbol, id=None):
     return convert_to_float(data, include)
 
 def open_trades(symbol):
+    """
+    Open trades
+    """
+
     data = _commons.__client.get_position_risk(symbol=symbol, recvWindow=_commons.__recvWindow)
 
     if not data == []:
@@ -195,6 +210,10 @@ def open_trades(symbol):
         return pd.DataFrame()
 
 def generate_more(function, days=30):
+    """
+    Generate more
+    """
+
     data = []
     requests_days = 6
 
@@ -217,6 +236,10 @@ def generate_more(function, days=30):
     return data
 
 def close_trades(symbol):
+    """
+    Close trades
+    """
+
     data = generate_more(
         lambda end, start: _commons.__client.get_account_trades(symbol=symbol, 
                                                      startTime=start, 

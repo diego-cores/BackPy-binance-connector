@@ -47,9 +47,14 @@ class StrategyClassReal(bk.StrategyClass):
         self.width = width
         self.icon = symbol
 
-    def __trades_updater(self, commission:float = None):
+    def __trades_updater(self, commission:float = None) -> None:
         """
         Update trades variables
+
+        Updates the active and closed trades variables.
+
+        Args:
+            commission (float): Current Commission.
         """
         self._StrategyClass__trades_ac = tools.open_trades(symbol=self.icon)
         self._StrategyClass__trades_cl = tools.close_trades(symbol=self.icon)
