@@ -4,35 +4,64 @@ import pandas as pd
 
 from . import _commons
 
-def get_balance():
+def get_balance() -> float:
     """
     Get balance
+
+    This function requests the Binance API for the available balance in 'USDT'.
+
+    Returns:
+        float: availableBalance.
     """
+
     info_bl = _commons.__client.balance(recvWindow=_commons.__recvWindow)
     for i in range(len(info_bl)):
         if info_bl[i]['asset'].upper() == 'USDT': 
             return float(info_bl[i]['availableBalance'])
         
-def get_commission(symbol):
+def get_commission(symbol) -> float:
     """
     Get commission
+
+    This function requests the taker operation fees from the Binance API.
+
+    Returns:
+        float: takerCommissionRate.
     """
+
     commission_info = _commons.__client.commission_rate(symbol=symbol, recvWindow=_commons.__recvWindow)
     return float(commission_info['takerCommissionRate'])
 
-def get_quantity_precision_symbol(symbol):
+def get_quantity_precision_symbol(symbol) -> float:
     """
     Get quantity precision of the symbol
+
+    This function requests the Binance API for the accuracy of the amounts.
+
+    Returns:
+        float: quantityPrecision.
     """
+
     for i in _commons.__client.exchange_info()['symbols']:
         if i['symbol'] == symbol:
             return i['quantityPrecision']
     return 0
 
-def fetch_data(symbol, interval, last=50):
+def fetch_data(symbol:str, interval:str, last:int = 50) -> pd.DataFrame:
     """
     Get the last candle data.
+
+    This function requests the Binance API for the 'last' number of candles.
+
+    Args:
+        symbol (str): Data symbol.
+        interval (str): Data interval.
+        last (int, optional): Number of steps to return starting from the present.
+    
+    Returns:
+        pd.Dataframe: Dataframe containing the data for each step.
     """
+
     klines = pd.DataFrame(_commons.__client.klines(
         symbol=symbol, interval=interval, limit=last, recvWindow=_commons.__recvWindow), 
         columns=['timestamp', 
@@ -187,10 +216,11 @@ def open_trades(symbol):
             'entryPrice', 
             'positionAmt',
             'positionSide', 
-            'unRealizedProfit'
+            'unRealizedProfit',
+            'updateTime',
         ]]
         extended_ = pd.DataFrame(_commons.__client.get_account_trades(symbol=symbol), 
-                                columns=['time','id','side']).iloc[-1]
+                                columns=['time','id','side']).iloc[::-1].reset_index(drop=True)
 
         data['time'] = extended_['time']
         data['id'] = extended_['id']
@@ -199,10 +229,12 @@ def open_trades(symbol):
         data['Type'] = data['positionAmt'].apply(lambda x: 1 if float(x)>0 else 0)
 
         include = [
+            'time',
+            'updateTime',
             'markPrice',
             'entryPrice', 
             'positionAmt',
-            'unRealizedProfit'
+            'unRealizedProfit',
         ]
 
         return convert_to_float(data, include)
