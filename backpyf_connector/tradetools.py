@@ -49,7 +49,7 @@ def get_quantity_precision_symbol(symbol) -> float:
 
 def fetch_data(symbol:str, interval:str, last:int = 50) -> pd.DataFrame:
     """
-    Get the last candle data.
+    Get data
 
     This function requests the Binance API for the 'last' number of candles.
 
@@ -86,10 +86,28 @@ def fetch_data(symbol:str, interval:str, last:int = 50) -> pd.DataFrame:
         'Volume'
     ]].astype(float)
 
-def place_order(symbol, side, quantity, stop_price=None, take_profit=None):
+def place_order(symbol:str, side:str, quantity:float, 
+                stop_price:float=None, take_profit:float=None) -> tuple:
     """
-    Set an order with proper precision.
+    Place order
+
+    This function set an order.
+
+    Args:
+        symbol (str): Symbol to which the order goes.
+        side (str): 'BUY' or 'SELL'.
+        quantity (float): Order quantity.
+        stop_price (float, optional): If it is not None a 'STOP_MARKET' 
+            order will be created at the value.
+        take_profit (float, optional): If it is not None a 'TAKE_PROFIT_MARKET' 
+            order will be created at the value.
+    
+    Returns:
+        tuple: The values ​​of the orders are returned: 
+            order, stop_loss_order, take_profit_order. 
+            If it is equal to 0 it is because it was not executed correctly.
     """
+
     quantity =  float(str(quantity)[:str(quantity).find('.')+1+get_quantity_precision_symbol(symbol)])
     
     if quantity <= 0:
@@ -113,7 +131,7 @@ def place_order(symbol, side, quantity, stop_price=None, take_profit=None):
         stop_loss_order = create_order(
             symbol=symbol,
             side=side,
-            type='STOP_MARKET',
+            type_='STOP_MARKET',
             price=stop_price,
             quantity=quantity
         )
@@ -124,7 +142,7 @@ def place_order(symbol, side, quantity, stop_price=None, take_profit=None):
         stop_loss_order = create_order(
             symbol=symbol,
             side=side,
-            type='TAKE_PROFIT_MARKET',
+            type_='TAKE_PROFIT_MARKET',
             price=take_profit,
             quantity=quantity,
         )
@@ -132,17 +150,31 @@ def place_order(symbol, side, quantity, stop_price=None, take_profit=None):
     if _commons.__logs: print('Place order successful.')
     return order, stop_loss_order, take_profit_order
 
-def create_order(symbol, side, quantity, price, type):
+def create_order(symbol:str, side:str, quantity:float, 
+                 price:float, type_:str) -> dict:
     """
     Create a order 
+
+    This function creates a 'type_' order.
+
+    Args:
+        symbol (str): Symbol to which the order goes.
+        side (str): 'BUY' or 'SELL'.
+        quantity (float): Order quantity.
+        price (float): Price at which it will be executed.
+        type_ (str, optional): Order type.
+    
+    Returns:
+        dict: Order.
     """
+
     quantity =  float(str(quantity)[:str(quantity).find('.')+1+get_quantity_precision_symbol(symbol)])
     price = float(str(price)[:str(price).find('.')+get_quantity_precision_symbol(symbol)])
 
     order_ = _commons.__function(
                 symbol=symbol,
                 side='SELL' if side == 'BUY' else 'BUY',
-                type=type,
+                type=type_,
                 stopPrice=price,
                 quantity=quantity,
                 # reduceOnly=True,
@@ -153,9 +185,18 @@ def create_order(symbol, side, quantity, price, type):
     if _commons.__logs: print('Create order successful.')
     return order_
 
-def cancel_order(symbol, id):
+def cancel_order(symbol:str, id:int) -> dict:
     """
     Cancel a order
+
+    This function cancel a order.
+
+    Args:
+        symbol (str): Symbol where the order is.
+        id (int): ID of the order you want to close.
+    
+    Returns:
+        dict: Closed order.
     """
     
     if _commons.__logs: print('Cancel order successful.')
@@ -163,17 +204,35 @@ def cancel_order(symbol, id):
                                orderId=str(int(id)),
                                recvWindow=_commons.__recvWindow)
 
-def convert_to_float(data, include):
+def convert_to_float(data:pd.DataFrame, include:list) -> pd.DataFrame:
     """
     Convert to float
+
+    This function converts 'data' columns to 'float'.
+
+    Args:
+        data (pd.DataFrame): The dataframe that contains those columns.
+        include (list): List of column names to convert.
+    
+    Returns:
+        pd.DataFrame: Dataframe with converted columns.
     """
 
     data[include] = data[include].astype(float)
     return data
 
-def open_orders(symbol, id=None):
+def open_orders(symbol:str, id:int=None) -> pd.DataFrame:
     """
     Open orders
+
+    This function requests open orders from the Binance API.
+
+    Args:
+        symbol (str): Symbol of orders.
+        id (int, optional): All orders with this id.
+
+    Returns:
+        pd.DataFrame: The orders.
     """
 
     data = pd.DataFrame(_commons.__client.get_all_orders(symbol=symbol, orderId=id, 
@@ -202,9 +261,17 @@ def open_orders(symbol, id=None):
 
     return convert_to_float(data, include)
 
-def open_trades(symbol):
+def open_trades(symbol:str) -> pd.DataFrame:
     """
     Open trades
+
+    This function asks the Binance API for open trades on 'symbol'.
+
+    Args:
+        symbol (str): Symbol of trades.
+
+    Returns:
+        pd.DataFrame: Open trades.
     """
 
     data = _commons.__client.get_position_risk(symbol=symbol, recvWindow=_commons.__recvWindow)
@@ -241,9 +308,19 @@ def open_trades(symbol):
     else:
         return pd.DataFrame()
 
-def generate_more(function, days=30):
+def generate_more(function:callable, days:int=30) -> list:
     """
     Generate more
+
+    This function is designed to execute the same 
+        request to the API several times and obtain more data.
+
+    Args:
+        function (callable): Function where the request to the API is executed.
+        days (int, optional): Number of days to request.
+
+    Returns:
+        list: Result.
     """
 
     data = []
@@ -267,15 +344,23 @@ def generate_more(function, days=30):
 
     return data
 
-def close_trades(symbol):
+def closed_trades(symbol:str) -> pd.DataFrame:
     """
-    Close trades
+    Closed trades
+
+    This function asks the Binance API for closed trades on 'symbol'.
+
+    Args:
+        symbol (str): Symbol of trades.
+
+    Returns:
+        pd.DataFrame: Close trades.
     """
 
     data = generate_more(
         lambda end, start: _commons.__client.get_account_trades(symbol=symbol, 
                                                      startTime=start, 
-                                                     endTime=end), days=30)
+                                                     endTime=end))
 
     if not data == []:
         data =  pd.DataFrame(data)[[

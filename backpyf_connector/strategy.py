@@ -56,8 +56,9 @@ class StrategyClassReal(bk.StrategyClass):
         Args:
             commission (float): Current Commission.
         """
+
         self._StrategyClass__trades_ac = tools.open_trades(symbol=self.icon)
-        self._StrategyClass__trades_cl = tools.close_trades(symbol=self.icon)
+        self._StrategyClass__trades_cl = tools.closed_trades(symbol=self.icon)
 
         self._StrategyClass__init_funds = tools.get_balance()
         if not commission is None: 
@@ -94,6 +95,7 @@ class StrategyClassReal(bk.StrategyClass):
         Args:
             data (pd.DataFrame): Data from the current and previous steps.
         """
+
         if not data.empty:
             self.__data_updater(data=data)
             self.__trades_updater(commission=commission)
