@@ -1,12 +1,16 @@
+# -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
+
+with open("README.md", encoding="utf-8") as file:
+    desc = file.read()
 
 setup(
     name='backpyf_binance',
     version='0.1.6a2',
     packages=find_packages(),
     description='This module connects your BackPy strategy with the real market using binance.',
-    long_description=open('README.md').read(),
+    long_description=desc,
     long_description_content_type='text/markdown',
     author='Diego',
     url='https://github.com/Diego-Cores/BackPy-binance-connector',
