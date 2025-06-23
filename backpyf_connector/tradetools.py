@@ -130,7 +130,7 @@ def place_order(symbol:str, side:str, quantity:float,
 
         stop_loss_order = create_order(
             symbol=symbol,
-            side=side,
+            side='SELL' if side else 'BUY',
             type_='STOP_MARKET',
             price=stop_price,
             quantity=quantity
@@ -141,7 +141,7 @@ def place_order(symbol:str, side:str, quantity:float,
 
         stop_loss_order = create_order(
             symbol=symbol,
-            side=side,
+            side='SELL' if side else 'BUY',
             type_='TAKE_PROFIT_MARKET',
             price=take_profit,
             quantity=quantity,
@@ -173,7 +173,7 @@ def create_order(symbol:str, side:str, quantity:float,
 
     order_ = _commons.__function(
                 symbol=symbol,
-                side='SELL' if side == 'BUY' else 'BUY',
+                side=side,
                 type=type_,
                 stopPrice=price,
                 quantity=quantity,
@@ -376,14 +376,13 @@ def closed_trades(symbol:str) -> pd.DataFrame:
             'time'
         ]] 
         include = [        
-            'orderId',
             'price', 
             'qty', 
             'realizedPnl',
             'commission',
             'time'
             ]
-        
+
         return convert_to_float(data, include)
     else:
         return pd.DataFrame()

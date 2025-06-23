@@ -17,15 +17,69 @@ import pandas as pd
 from . import tradetools as tools
 
 class StrategyClassReal(bk.StrategyClass):
-    def __init__(self, symbol, interval, width, commission:float = 0) -> None: 
+    """
+    StrategyClassReal.
+
+    This is the class you have to inherit to automate your strategy.
+
+    To use the functions, use the `self` instance. Create your strategy 
+    within the `StrategyClassReal.next()` structure.
+
+    Attributes:
+        open: Last 'Open' value from `data`.
+        high: Last 'High' value from `data`.
+        low: Last 'Low' value from `data`.
+        close: Last 'Close' value from `data`.
+        volume: Last 'Volume' value from `data`.
+        date: Last index from `data`.
+        interval: Data interval from `__interval`.
+        width: Data width from `__width`.
+        icon: Data icon from `__symbol`.
+
+    Private Attributes:
+        __data_icon: Data icon from `__symbol`.
+        __data: DataFrame containing all data of steps.
+        __commission: Commission by order.
+        __init_funds: Account balance.
+        __trades_ac: DataFrame for open trades.
+        __trades_cl: DataFrame for closed trades.
+        
+
+    Methods:
+        get_init_funds: Returns '__init_funds'.
+        get_commission: Returns '__commission'.
+        act_mod: Modifies an existing trade.
+        act_close: Closes an existing trade.
+        act_open: Opens a new trade.
+        prev_trades_ac: Returns active trades.
+        prev_trades_cl: Returns closed trades.
+        prev: Recovers all step data.
+
+    Private Methods:
+        __act_close: Closes an existing trade.
+        __before: This function is used to run trades and other operations.
+        __trades_ac_get: This function sets the 
+            variable '__trades_ac' if it is None.
+        __trades_cl_get: This function sets the 
+            variable '__trades_cl' if it is None.
+        __get_funds: This function sets the
+            variable '__init_funds' if it is None.
+        __trades_updater: Updates the active and closed trades variables.
+        __data_updater: Updates all data with the provided DataFrame.
+    """
+
+    def __init__(self, symbol:str, interval:str, 
+                 width:float, commission:float) -> None: 
         """
         __init__
 
         Builder for initializing the class.
 
         Args:
-            data (pd.DataFrame): All data from the step and previous ones.
-            commission (float): Commission per trade.
+            symbol (str): Data symbol.
+            interval (str): Data interval.
+            width (float): Width of each step.
+            commission (float): Commission by order
         """
         
         self.open = None
@@ -35,6 +89,7 @@ class StrategyClassReal(bk.StrategyClass):
         self.volume = None
         self.date = None
 
+        self.__data_icon = symbol
         self._StrategyClass__data = pd.DataFrame()
 
         self._StrategyClass__commission = commission
@@ -47,6 +102,42 @@ class StrategyClassReal(bk.StrategyClass):
         self.width = width
         self.icon = symbol
 
+    def get_init_funds(self) -> None:
+        """{}""".format(self.__class__.__bases__[0].get_init_funds.__doc__)
+
+        self.__get_funds()
+        return super().get_init_funds()
+
+    def __trades_ac_get(self) -> None:
+        """
+        Get active trades
+
+        This function sets the variable '__trades_ac' if it is None.
+        """
+
+        if self._StrategyClass__trades_ac is None:
+            self._StrategyClass__trades_ac = tools.open_trades(symbol=self.__data_icon)
+
+    def __trades_cl_get(self) -> None:
+        """
+        Get closed trades
+
+        This function sets the variable '__trades_cl' if it is None.
+        """
+
+        if self._StrategyClass__trades_cl is None:
+            self._StrategyClass__trades_cl = tools.closed_trades(symbol=self.__data_icon)
+
+    def __get_funds(self) -> None:
+        """
+        Get funds
+
+        This function sets the variable '__init_funds' if it is None.
+        """
+
+        if self._StrategyClass__init_funds is None:
+            self._StrategyClass__init_funds = tools.get_balance()
+
     def __trades_updater(self, commission:float = None) -> None:
         """
         Update trades variables
@@ -57,10 +148,10 @@ class StrategyClassReal(bk.StrategyClass):
             commission (float): Current Commission.
         """
 
-        self._StrategyClass__trades_ac = tools.open_trades(symbol=self.icon)
-        self._StrategyClass__trades_cl = tools.closed_trades(symbol=self.icon)
+        self._StrategyClass__trades_ac = None
+        self._StrategyClass__trades_cl = None
 
-        self._StrategyClass__init_funds = tools.get_balance()
+        self._StrategyClass__init_funds = None
         if not commission is None: 
             self._StrategyClass__commission = commission
 
@@ -94,6 +185,7 @@ class StrategyClassReal(bk.StrategyClass):
 
         Args:
             data (pd.DataFrame): Data from the current and previous steps.
+            commission (float, optional): Commission by order.
         """
 
         if not data.empty:
@@ -130,7 +222,7 @@ class StrategyClassReal(bk.StrategyClass):
         """
 
         return super().prev(label=label, last=last)
-    
+
     def prev_trades_cl(self, label:str = None, last:int = None) -> pd.DataFrame:
         """
         Prev of trades closed
@@ -145,28 +237,24 @@ class StrategyClassReal(bk.StrategyClass):
                 present. If None, data for all times is returned.
 
         Info:
-            `__trades_cl` columns, the same columns you can access with 
-            `prev_trades_ac`.
-
-            - Date: The step date when the trade began.
-            - Close: The 'Close' price at the trade's start.
-            - Low: The lowest price at the trade's start.
-            - High: The highest price at the trade's start.
-            - StopLoss: The stop loss position.
-            - TakeProfit: The take profit position.
-            - PositionClose: The 'Close' price when the trade ends.
-            - PositionDate: The step date when the trade ends.
-            - Amount: Chosen amount.
-            - ProfitPer: Trade profit in percentage.
-            - Profit: Trade profit based on amount.
-            - Type: Type of trade.
+            - orderId: Id of the order.
+            - symbol: Symbol of the order.
+            - price: Executed price.
+            - qty: Amount in 'symbol' of the order.
+            - realizedPnl: Pnl realized.
+            - commission: Commission charged.
+            - commissionAsset: Asset on which the commission was charged.
+            - side: Order side.
+            - positionSide: Position mode.
+            - time: Executed time.
 
         Returns:
             pd.Dataframe: Dataframe containing the data from closed trades.
         """
 
+        self.__trades_cl_get()
         return super().prev_trades_cl(label=label, last=last)
-    
+
     def prev_trades_ac(self, label:str = None, last:int = None) -> pd.DataFrame:
         """
         Prev of trades active
@@ -181,24 +269,25 @@ class StrategyClassReal(bk.StrategyClass):
                 present. If None, data for all times is returned.
 
         Info:
-            `__trades_ac` columns, the same columns you can access with 
-            `prev_trades_cl`.
+            - symbol: Symbol of the position.
+            - markPrice: Mark price.
+            - entryPrice: Entry price.
+            - positionAmt: Amount in 'symbol' of the position.
+            - positionSide: Position mode.
+            - unRealizedProfit: Pnl unrealized.
+            - updateTime: Date of last position update.
+            - time: Date of the opening order.
+            - id: Id of the order.
+            - side: Position side.
+            - Type: Position type.
 
-            - Date: The step date when the trade began.
-            - Close: The 'Close' price at the trade's start.
-            - Low: The lowest price at the trade's start.
-            - High: The highest price at the trade's start.
-            - StopLoss: The stop loss position.
-            - TakeProfit: The take profit position.
-            - Amount: Chosen amount.
-            - Type: Type of trade.
-        
         Returns:
             pd.Dataframe: Dataframe containing the data from active trades.
         """
 
+        self.__trades_ac_get()
         return super().prev_trades_ac(label=label, last=last)
-    
+
     def act_open(self, type:bool = 1, stop_loss:int = np.nan, 
                  take_profit:int = np.nan, amount:int = np.nan) -> None:
         """
@@ -245,7 +334,7 @@ class StrategyClassReal(bk.StrategyClass):
                                """, newline_exclude=True))
         # Create new trade.
         order_, order_stop, order_take = tools.place_order(
-            symbol=self.icon, 
+            symbol=self.__data_icon, 
             side='BUY' if type else 'SELL', 
             quantity=amount, 
             stop_price=(stop_loss if not np.isnan(stop_loss) else None),
@@ -265,6 +354,9 @@ class StrategyClassReal(bk.StrategyClass):
             index (int): The index of the active trade you want to close.
         """
 
+        # Set __trades_ac.
+        self.__trades_ac_get()
+
         # Check exceptions.
         if self._StrategyClass__trades_ac.empty: 
             raise exception.ActionError('There are no active trades.')
@@ -282,21 +374,24 @@ class StrategyClassReal(bk.StrategyClass):
             It does not include exception handling.
         """
 
+        # Set __trades_ac.
+        self.__trades_ac_get()
+
         # Get trade to close.
         trade = self._StrategyClass__trades_ac.iloc[lambda x: x.index==index].copy()
         trade = trade.iloc[-1]
 
         # Close position.
         order_, order_stop, order_take = tools.place_order(
-            symbol=self.icon, 
+            symbol=self.__data_icon, 
             side='SELL' if trade['Type'] else 'BUY', 
             quantity=trade['positionAmt']
             )
         
-        orders = tools.open_orders(symbol=self.icon, id=trade['id'])
+        orders = tools.open_orders(symbol=self.__data_icon, id=trade['id'])
 
         if not orders['orderId'].empty:
-            orders.apply(lambda x: tools.cancel_order(self.icon,x['orderId']) 
+            orders.apply(lambda x: tools.cancel_order(self.__data_icon,x['orderId']) 
                          if x['symbol'] == 'BTCUSDT' and 
                          x['type'] in ('STOP_MARKET','TAKE_PROFIT_MARKET') 
                          else None, axis=1)
@@ -323,7 +418,10 @@ class StrategyClassReal(bk.StrategyClass):
             new_take (int or None): New take profit price. If None, take profit 
                 will not be modified. If np.nan, take profit will be removed.
         """
-        
+
+        # Set __trades_ac.
+        self.__trades_ac_get()
+
         # Check exceptions.
         if self._StrategyClass__trades_ac.empty: 
             raise exception.ActionError('There are no active trades.')
@@ -336,18 +434,18 @@ class StrategyClassReal(bk.StrategyClass):
                           trade['Type']) or (not trade['Type'] and 
                                              new_stop > self.close) or 
                                              np.isnan(new_stop)): 
-            old_order = tools.open_orders(symbol=self.icon, id=trade['id'])
+            old_order = tools.open_orders(symbol=self.__data_icon, id=trade['id'])
             old_order = old_order[old_order['type'] == 'STOP_MARKET']
 
             if not old_order.empty:
-                tools.cancel_order(symbol=self.icon, id=old_order.iloc[-1]['orderId'])
+                tools.cancel_order(symbol=self.__data_icon, id=old_order.iloc[-1]['orderId'])
 
             order_ = tools.create_order(
-                symbol=self.icon,
+                symbol=self.__data_icon,
                 side='SELL' if trade['side'] == 'BUY' else 'BUY',
                 quantity=trade['positionAmt'],
                 price=new_stop,
-                type='STOP_MARKET'
+                type_='STOP_MARKET'
             )
 
         # Set new take.
@@ -355,14 +453,14 @@ class StrategyClassReal(bk.StrategyClass):
                           and trade['Type']) or (not trade['Type'] and 
                                                  new_take < self.close) or 
                                                  np.isnan(new_take)): 
-            old_order = tools.open_orders(symbol=self.icon, id=trade['id'])
+            old_order = tools.open_orders(symbol=self.__data_icon, id=trade['id'])
             old_order = old_order[old_order['type'] == 'TAKE_PROFIT_MARKET']
 
             if not old_order.empty:
-                tools.cancel_order(symbol=self.icon, id=old_order.iloc[-1]['orderId'])
+                tools.cancel_order(symbol=self.__data_icon, id=old_order.iloc[-1]['orderId'])
 
             order_ = tools.create_order(
-                symbol=self.icon,
+                symbol=self.__data_icon,
                 side='SELL' if trade['side'] == 'BUY' else 'BUY',
                 quantity=trade['positionAmt'],
                 price=new_take,
