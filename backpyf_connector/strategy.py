@@ -11,6 +11,8 @@ import backpyf.exception as exception
 import backpyf.utils as utils
 import backpyf as bk
 
+from backpyf.main import flx
+
 import numpy as np
 import pandas as pd
 
@@ -53,6 +55,7 @@ class StrategyClassReal(bk.StrategyClass):
         act_open: Opens a new trade.
         prev_trades_ac: Returns active trades.
         prev_trades_cl: Returns closed trades.
+        prev_orders: This function returns open orders.
         prev: Recovers all step data.
 
     Private Methods:
@@ -194,7 +197,7 @@ class StrategyClassReal(bk.StrategyClass):
 
         self.next()
 
-    def prev(self, label:str = None, last:int = None) -> pd.DataFrame:
+    def prev(self, label:str = None, last:int = None) -> flx.DataWrapper:
         """
         Prev
 
@@ -215,15 +218,75 @@ class StrategyClassReal(bk.StrategyClass):
             - Low: The 'Low' price of the step.
             - Close: The 'Close' price of the step.
             - Volume: The 'Volume' of the step.
-            - index: The 'Index' of the step.
 
         Returns:
-            pd.Dataframe: Dataframe containing the data of previous steps.
+            DataWrapper: DataWrapper containing the data of previous steps.
         """
 
         return super().prev(label=label, last=last)
 
-    def prev_trades_cl(self, label:str = None, last:int = None) -> pd.DataFrame:
+    def prev_orders(self, id:int = None, type_:str = None, 
+                    label:str = None, last:int = None) -> flx.DataWrapper:
+        """
+        Prev orders
+
+        This function returns open orders.
+
+        Args:
+            id (int, optional): Filter operations by ID.
+            type_ (str, optional): Filter operations by 'type' value.
+            label (str, optional): Data column to return. If None, all columns 
+                are returned. If 'index', only indexes are returned, ignoring 
+                the `last` parameter.
+            last (int, optional): Number of steps to return starting from the 
+                present. If None, data for all times is returned.
+
+        Info:
+            - orderId: Id of the order.
+            - symbol: Symbol of the order.
+            - status: Current status of the order.
+            - avgPrice: Price at which the order was executed.
+            - executedQty: Amount in 'symbol' of the position.
+            - side: Order side.
+            - positionSide: Position mode.
+            - stopPrice: Execution price.
+            - time: Order date.
+            - type: Order type.
+            - Type: Position type if 'executedQty' is positive it is 1 if it is negative 0.
+
+        Returns:
+            DataWrapper: DataWrapper containing the data of orders.
+        """
+
+        __orders = tools.open_orders(symbol=self.__data_icon, id=id)
+        if label == 'index': 
+            return flx.DataWrapper(__orders.index, columns='index')
+        elif __orders.empty: 
+            return flx.DataWrapper()
+
+        if (last != None and 
+              (last <= 0 or last > self.__data["Close"].shape[0])): 
+            raise ValueError(utils.text_fix("""
+                            Last has to be less than the length of 
+                            'data' and greater than 0.
+                            """, newline_exclude=True))
+
+        if type_ != None:
+            __orders = __orders[__orders['type'] == type_]
+
+        data_columns = __orders.columns
+        data = __orders.values[
+            len(__orders) - last if last is not None and last < len(__orders) else 0:]
+
+        if label != None: 
+            _loc = __orders.columns.get_loc(label)
+
+            data_columns = data_columns[_loc]
+            data = data[:,_loc]
+
+        return flx.DataWrapper(data, columns=data_columns)
+
+    def prev_trades_cl(self, label:str = None, last:int = None) -> flx.DataWrapper:
         """
         Prev of trades closed
 
@@ -249,13 +312,13 @@ class StrategyClassReal(bk.StrategyClass):
             - time: Executed time.
 
         Returns:
-            pd.Dataframe: Dataframe containing the data from closed trades.
+            DataWrapper: DataWrapper containing the data from closed trades.
         """
 
         self.__trades_cl_get()
         return super().prev_trades_cl(label=label, last=last)
 
-    def prev_trades_ac(self, label:str = None, last:int = None) -> pd.DataFrame:
+    def prev_trades_ac(self, label:str = None, last:int = None) -> flx.DataWrapper:
         """
         Prev of trades active
 
@@ -282,14 +345,14 @@ class StrategyClassReal(bk.StrategyClass):
             - Type: Position type.
 
         Returns:
-            pd.Dataframe: Dataframe containing the data from active trades.
+            DataWrapper: DataWrapper containing the data from active trades.
         """
 
         self.__trades_ac_get()
         return super().prev_trades_ac(label=label, last=last)
 
     def act_open(self, type:bool = 1, stop_loss:int = np.nan, 
-                 take_profit:int = np.nan, amount:int = np.nan) -> None:
+                 take_profit:int = np.nan, amount:int = np.nan) -> tuple:
         """
         Opens an action for trading (REAL)
 
@@ -307,6 +370,9 @@ class StrategyClassReal(bk.StrategyClass):
             take_profit (int): Price for take profit. If np.nan or None, no take 
                 profit will be set.
             amount (int): Amount of points for the trade.
+
+        Return:
+            tuple: order, stop order, take profit order
         """
 
         # Convert to boolean.
@@ -346,12 +412,15 @@ class StrategyClassReal(bk.StrategyClass):
         self.__trades_updater()
         return order_, order_stop, order_take
     
-    def act_close(self, index:int = 0) -> None:
+    def act_close(self, index:int = 0) -> tuple:
         """
-        Close an active trade
+        Close an active trade (REAL)
 
         Args:
             index (int): The index of the active trade you want to close.
+
+        Return:
+            tuple: order, stop order, take profit order
         """
 
         # Set __trades_ac.
@@ -365,7 +434,7 @@ class StrategyClassReal(bk.StrategyClass):
         # Close action.
         return self.__act_close(index=index)
 
-    def __act_close(self, index:int = 0) -> None:
+    def __act_close(self, index:int = 0) -> tuple:
         """
         Close an active trade (REAL)
 
@@ -403,7 +472,7 @@ class StrategyClassReal(bk.StrategyClass):
         return order_, order_stop, order_take
 
     def act_mod(self, index:int = 0, new_stop:int = None, 
-                new_take:int = None) -> None:
+                new_take:int = None) -> tuple:
         """
         Modify an active trade (REAL)
 
@@ -417,6 +486,9 @@ class StrategyClassReal(bk.StrategyClass):
                 not be modified. If np.nan, stop loss will be removed.
             new_take (int or None): New take profit price. If None, take profit 
                 will not be modified. If np.nan, take profit will be removed.
+
+        Return:
+            tuple: stop order, take profit order
         """
 
         # Set __trades_ac.
@@ -440,7 +512,7 @@ class StrategyClassReal(bk.StrategyClass):
             if not old_order.empty:
                 tools.cancel_order(symbol=self.__data_icon, id=old_order.iloc[-1]['orderId'])
 
-            order_ = tools.create_order(
+            order_stop = tools.create_order(
                 symbol=self.__data_icon,
                 side='SELL' if trade['side'] == 'BUY' else 'BUY',
                 quantity=trade['positionAmt'],
@@ -459,7 +531,7 @@ class StrategyClassReal(bk.StrategyClass):
             if not old_order.empty:
                 tools.cancel_order(symbol=self.__data_icon, id=old_order.iloc[-1]['orderId'])
 
-            order_ = tools.create_order(
+            order_take = tools.create_order(
                 symbol=self.__data_icon,
                 side='SELL' if trade['side'] == 'BUY' else 'BUY',
                 quantity=trade['positionAmt'],
@@ -468,4 +540,4 @@ class StrategyClassReal(bk.StrategyClass):
             )
         
         self.__trades_updater()
-        return order_
+        return order_stop, order_take

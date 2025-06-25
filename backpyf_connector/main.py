@@ -119,8 +119,8 @@ def set_data(symbol:str, interval:str, leverage:int,
         try: 
             _commons.__client.change_leverage(symbol=symbol, leverage=leverage, 
                                             recvWindow=_commons.__recvWindow)
-        except ClientError:
-            print_log(f"⚠️ Connection to Binance or Timestamp error.\nActual ip: {_commons.__ip_acc}.", alert=True)
+        except ClientError as e:
+            print_log(f"⚠️ Connection to Binance or Timestamp error.\nActual ip: {_commons.__ip_acc}.\n{e.message}", alert=True)
             te.sleep(30); continue
         break
 
@@ -461,6 +461,7 @@ def telegram_bot(api_key:str, chatid:str = ""):
         api_key (str): Telegram bot api key.
         chatid (str): It is used to receive logs and 
             request the bot for the machine's public IP.
+            Use the '/chatid' command in your chat to get yours.
     """
 
     from . import telegram

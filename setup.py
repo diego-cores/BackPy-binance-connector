@@ -20,12 +20,14 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     install_requires=[
-        'backpyf @ git+https://github.com/diego-cores/BackPy.git@main',
         'binance-futures-connector==4.1.0',
         'pandas>=1.3.0',
         'numpy>=1.16.5',
     ],
     extras_require={
+        'backpyf': [
+            'backpyf @ git+https://github.com/diego-cores/BackPy.git@main',
+        ],
         'optional': [
             'python-telegram-bot>=21.11.1',
     ]}

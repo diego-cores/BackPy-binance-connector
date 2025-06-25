@@ -252,7 +252,6 @@ def open_orders(symbol:str, id:int=None) -> pd.DataFrame:
     data['Type'] = data['executedQty'].apply(lambda x: 1 if float(x)>0 else 0)
 
     include = [
-        'orderId',
         'avgPrice',
         'executedQty',
         'stopPrice',

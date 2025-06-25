@@ -46,9 +46,9 @@ def bot_init(api_key:str) -> None:
     app.add_handler(CommandHandler("chatid", chatid_command))
     app.add_handler(CommandHandler("sistem",sistem_command))
     app.add_handler(CommandHandler("last", last_command))
-    app.add_handler(CommandHandler("ip", ip_command))
     app.add_handler(CommandHandler("off", off_command))
-    
+    app.add_handler(CommandHandler("ip", ip_command))
+
     _cm.__loop.run_until_complete(on_startup(app))
 
     main.print_log("Bot started.")
@@ -80,7 +80,7 @@ async def on_startup(app) -> None:
     """
 
     if not _cm.__chat_id: return
-    
+
     _cm.__bot = app.bot
     await _cm.__bot.send_message(chat_id=_cm.__chat_id, 
                                  text="Hi! I'm your trading system 🤖\n/help to see more commands.")
@@ -119,13 +119,13 @@ async def help_command(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(text_fix(
         """
         Available commands:
-        /start - Start the bot.
-        /help - Get help.
         /sistem - Get active trading systems.
-        /last - Get the latest system logs.
-        /ip - Get the system's current IP address.
         /chatid - Get your id to config.
+        /start - Start the bot.
+        /last - Get the latest system logs.
+        /help - Get help.
         /off - Turn off the systems and the bot.
+        /ip - Get the system's current public IP address.
         """, False))
 
 async def chatid_command(update: Update, context: CallbackContext) -> None:
@@ -156,18 +156,25 @@ async def sistem_command(update: Update, context: CallbackContext) -> None:
         return
 
     open_trades = tools.open_trades(_cm.__symbol)
-    trades = "".join(
-        f"\nTrade: {i+1} [\nentryPrice: {open_trades.iloc[i]['entryPrice']}\npositionAmt: {open_trades.iloc[i]['positionAmt']}\ntype: {open_trades.iloc[i]['Type']}]" for i in open_trades.index)
+    trades = "".join(text_fix(
+        f"""
+        Trade {i+1}: {{
+        entryPrice: {open_trades.iloc[i]['entryPrice']}
+        positionAmt: {open_trades.iloc[i]['positionAmt']}
+        type: {open_trades.iloc[i]['Type']}
+        }}""", False) for i in open_trades.index)
 
     instances_names = "\n".join(_cm.__instances)
     await update.message.reply_text(text_fix(
         f"""
-        Active trading systems:
-        {instances_names}
+        Active trading systems: {{
+        {instances_names} 
+        }}
+
         System Statistics:
         Balance: {round(tools.get_balance(), 2)}
         Commission: {tools.get_commission(_cm.__symbol)}
-        Trades: {trades}
+        {trades}
         """, False))
 
 async def last_command(update: Update, context: CallbackContext) -> None:
@@ -201,7 +208,7 @@ async def ip_command(update: Update, context: CallbackContext) -> None:
     
     await update.message.reply_text(text_fix(
         f"""
-        Current IP: {_cm.__ip_acc}
+        Current IP: '{_cm.__ip_acc}'
         Do not share this information with anyone.
         """, False))
 
