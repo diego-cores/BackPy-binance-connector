@@ -17,9 +17,14 @@ Please make sure to read the following before using this software:
 
 By using this software, you acknowledge that you have read and agree to the terms outlined in these documents.
 
+## 🚀 Code example
+![code comparison](images/code1.png)
+
+With backpy-binance-connector you can automate your strategies very quickly.
+
 ## 📦 How to install backpy-binance-connector with pip
 
-This module needs to have backpyf>=0.9.70b3 installed, download it 
+This module needs to have backpyf>=0.9.69b3 installed, download it 
 from: https://github.com/diego-cores/BackPy or install it 
 with the command 'pip install .[backpyf]'.
 
@@ -40,8 +45,3 @@ with the command 'pip install .[backpyf]'.
 - After the installation process finishes without errors, you can verify if the module has been installed correctly by running some code that imports the newly installed module.
 6. Clean downloaded files
 - After you have verified that the module is working correctly, you can delete the downloaded ZIP file and unzipped folder if you wish.
-
-## 🚀 Code example
-![code comparison](images/code1.png)
-
-With backpy-binance-connector you can automate your strategies very quickly.

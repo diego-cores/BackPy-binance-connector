@@ -353,6 +353,7 @@ def class_execute(api_key:str, secret_key:str,
     Note:
         This will be executed in the real market using the Binance API. 
         Before executing this insurance, please refer to 'Risk_notice.txt'.
+        Test can still close orders.
 
     Args:
         api_key (str): Binance API key.
@@ -367,6 +368,7 @@ def class_execute(api_key:str, secret_key:str,
             to be loaded into your strategy to calculate it.
         test (bool, optional): If true, the test version will be run, 
             which instead of using the 'client.new_order' function uses 'client.new_order_test'.
+            Test can still close orders.
     """
 
     set_client(api_key=api_key, secret_key=secret_key, test=test)
@@ -391,6 +393,7 @@ def class_group(api_key:str, secret_key:str,
     Note:
         This will be executed in the real market using the Binance API. 
         Before executing this insurance, please refer to 'Risk_notice.txt'.
+        Test can still close orders.
 
     Args:
         api_key (str): Binance API key.
@@ -416,6 +419,7 @@ def class_group(api_key:str, secret_key:str,
             Example of 1 hour interval: 1/24.
         test (bool, optional): If true, the test version will be run, 
             which instead of using the 'client.new_order' function uses 'client.new_order_test'.
+            Test can still close orders.
     """
 
     set_client(api_key=api_key, secret_key=secret_key, test=test)

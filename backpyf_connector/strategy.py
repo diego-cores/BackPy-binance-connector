@@ -502,6 +502,7 @@ class StrategyClassReal(bk.StrategyClass):
         # Get trade to modify.
         trade = self._StrategyClass__trades_ac.loc[index]
         # Set new stop.
+        order_stop = 0
         if new_stop and ((new_stop < self._StrategyClass__data["Close"].iloc[-1] and 
                           trade['Type']) or (not trade['Type'] and 
                                              new_stop > self.close) or 
@@ -521,6 +522,7 @@ class StrategyClassReal(bk.StrategyClass):
             )
 
         # Set new take.
+        order_take = 0
         if new_take and ((new_take > self._StrategyClass__data["Close"].iloc[-1] 
                           and trade['Type']) or (not trade['Type'] and 
                                                  new_take < self.close) or 
