@@ -119,13 +119,13 @@ async def help_command(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(text_fix(
         """
         Available commands:
-        /sistem - Get active trading systems.
+        /sistem - Get active trading systems (chatid).
         /chatid - Get your id to config.
         /start - Start the bot.
-        /last - Get the latest system logs.
+        /last - Get the latest system logs (chatid).
         /help - Get help.
-        /off - Turn off the systems and the bot.
-        /ip - Get the system's current public IP address.
+        /off - Turn off the systems and the bot (chatid). 
+        /ip - Get the system's current public IP address (chatid). 
         """, False))
 
 async def chatid_command(update: Update, context: CallbackContext) -> None:
@@ -145,9 +145,15 @@ async def sistem_command(update: Update, context: CallbackContext) -> None:
     Sistem command
 
     Send account balance and open trades data.
+        if the chatid is the same as '_cm.__chat_id'.
     """
 
-    if _cm.__client is None:
+
+    if str(update.effective_chat.id) != str(_cm.__chat_id):
+        main.print_log("Sistem request, chat id does not match.", alert=True)
+        await update.message.reply_text("Chat id does not match.")
+        return
+    elif _cm.__client is None:
         main.print_log("Client not found.", alert=True)
         await update.message.reply_text("System not executed.")
         return
@@ -182,7 +188,13 @@ async def last_command(update: Update, context: CallbackContext) -> None:
     Last command
 
     Send all logs that were sent.
+        if the chatid is the same as '_cm.__chat_id'.
     """
+
+    if str(update.effective_chat.id) != str(_cm.__chat_id):
+        main.print_log("Last request, chat id does not match.", alert=True)
+        await update.message.reply_text("Chat id does not match.")
+        return
 
     logs = "".join(
         f"{i[0].strftime('%Y-%m-%d %H:%M:%S')}: '{i[1]}'\n" for i in _cm.__rec[::-1])
@@ -216,8 +228,14 @@ async def off_command(update: Update, context: CallbackContext) -> None:
     """
     Off command
 
-    Command to shut down the system.
+    Command to shut down the system
+        if the chatid is the same as '_cm.__chat_id'.
     """
+
+    if str(update.effective_chat.id) != str(_cm.__chat_id):
+        main.print_log("Off request, chat id does not match.", alert=True)
+        await update.message.reply_text("Chat id does not match.")
+        return
 
     _cm.__main_loop = False
     _cm.__instances = None

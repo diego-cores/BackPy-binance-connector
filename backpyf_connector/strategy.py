@@ -41,11 +41,11 @@ class StrategyClassReal(bk.StrategyClass):
     Private Attributes:
         __data_icon: Data icon from `__symbol`.
         __data: DataFrame containing all data of steps.
+        __data_all: DataFrame containing all data of steps.
         __commission: Commission by order.
         __init_funds: Account balance.
         __trades_ac: DataFrame for open trades.
         __trades_cl: DataFrame for closed trades.
-        
 
     Methods:
         get_init_funds: Returns '__init_funds'.
@@ -59,6 +59,8 @@ class StrategyClassReal(bk.StrategyClass):
         prev: Recovers all step data.
 
     Private Methods:
+        __uidc: Send data argument to the indicator.
+        __store_decorator: Cut the data with the 'last' argument.
         __act_close: Closes an existing trade.
         __before: This function is used to run trades and other operations.
         __trades_ac_get: This function sets the 
@@ -84,7 +86,7 @@ class StrategyClassReal(bk.StrategyClass):
             width (float): Width of each step.
             commission (float): Commission by order
         """
-        
+
         self.open = None
         self.high = None
         self.low = None
@@ -95,6 +97,8 @@ class StrategyClassReal(bk.StrategyClass):
         self.__data_icon = symbol
         self._StrategyClass__data = pd.DataFrame()
 
+        self._StrategyClass__data_all = None
+
         self._StrategyClass__commission = commission
         self._StrategyClass__init_funds = None
 
@@ -104,6 +108,93 @@ class StrategyClassReal(bk.StrategyClass):
         self.interval =  interval
         self.width = width
         self.icon = symbol
+
+        for name, attr in bk.StrategyClass.__dict__.items():
+            if callable(attr) and getattr(attr, "_store", False):
+                do = getattr(self, "_StrategyClassReal__store_decorator", None)
+                setattr(self, name, do(attr))
+
+        for name in dir(self):
+            attr = getattr(self, name)
+
+            if callable(attr) and getattr(attr, "_uidc", False):
+                do = getattr(self, "_StrategyClassReal__uidc", None)
+                setattr(self, name, do(attr))
+
+    def __uidc(self, func:callable) -> callable:
+        """
+        User indicator
+
+        Send data argument to the indicator.
+
+        Args:
+            func (callable): Function.
+
+        Return:
+            callable: Wrapper function.
+        """
+
+        func = staticmethod(func).__func__
+
+        @bk.strategy.wraps(func)
+        def __wr_func(*args, **kwargs) -> flx.DataWrapper:
+            """
+            Wrapper function
+
+            Sends '__data_all' to the 'data' argument.
+
+            Return:
+                DataWrapper: Function result.
+            """
+
+            result = bk.DataWrapper(func.__func__(
+                self._StrategyClass__data_all, *args, **kwargs))
+
+            if len(result) != len(self._StrategyClass__data_all):
+                raise bk.strategy.exception.UidcError('Length different from data.')
+
+            return result
+        return __wr_func
+
+    def __store_decorator(self, func:callable) -> callable:
+        """
+        Data store
+
+        Cut the data with the 'last' argument.
+
+        Args:
+            func (callable): Function.
+
+        Return:
+            callable: Wrapper function.
+        """
+
+        def __wr_func(*args, **kwargs) -> pd.DataFrame:
+            """
+            Wrapper function
+
+            Cut the data with the 'last' argument.
+
+            Return:
+                pd.DataFrame: Function result.
+            """
+
+            arguments = bk.StrategyClass._StrategyClass__func_idg(
+                func, *args, **kwargs)[1]
+
+            result = func(self, *args, **kwargs)
+
+            if arguments.get('cut', False):
+
+                limit = len(self._StrategyClass__data_all)
+                last = arguments.get('last', None)
+                return (result.iloc[limit-last:] 
+                        if last is not None 
+                            and last < limit
+                        else result)
+
+            return result
+        return __wr_func
 
     def get_init_funds(self) -> None:
         """{}""".format(self.__class__.__bases__[0].get_init_funds.__doc__)
@@ -178,7 +269,7 @@ class StrategyClassReal(bk.StrategyClass):
         self.volume = data["Volume"].iloc[-1]
         self.date = data.index[-1]+self.width
 
-        self._StrategyClass__data = data
+        self._StrategyClass__data = self._StrategyClass__data_all = data
 
     def __before(self, data = pd.DataFrame(), commission:float = None) -> None:
         """

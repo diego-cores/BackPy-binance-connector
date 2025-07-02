@@ -90,7 +90,7 @@ def set_client(api_key:str, secret_key:str, test:bool = True) -> None:
     # Init futures client
     client = UMFutures(api_key, secret_key,
                     base_url="https://fapi.binance.com/")
-    
+
     _commons.__client = client
     _commons.__function = client.new_order_test if test else client.new_order
 
@@ -107,6 +107,7 @@ def set_data(symbol:str, interval:str, leverage:int,
         leverage (str): Leverage used in futures.
         ps_type (str): Binance Margin Type.
         last (int): Amount of data from today back that you want to request.
+            Default 500, max 1000.
     """
 
     ## Set data
@@ -120,7 +121,7 @@ def set_data(symbol:str, interval:str, leverage:int,
             _commons.__client.change_leverage(symbol=symbol, leverage=leverage, 
                                             recvWindow=_commons.__recvWindow)
         except ClientError as e:
-            print_log(f"⚠️ Connection to Binance or Timestamp error.\nActual ip: {_commons.__ip_acc}.\n{e.message}", alert=True)
+            print_log(f"⚠️ Connection to Binance or Timestamp error.\nActual ip: {_commons.__ip_acc}.", alert=True)
             te.sleep(30); continue
         break
 
@@ -139,6 +140,7 @@ def set_search(last:int) -> None:
 
     Args:
         last (int): Amount of data from today back that you want to request.
+            Default 500, max 1000.
     """
 
     _commons.__data = tools.fetch_data(_commons.__symbol, _commons.__interval, 
@@ -311,8 +313,8 @@ def generate_loop(function:callable, time_offset:float = 0, time_less:int = -60,
     time = datetime.now()
     last_cc_bc = time+timedelta(seconds=30)
     this_close = time.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=time_offset)
-    
-    print_log('Started.')
+
+    print_log('Sistem started.')
     while _commons.__main_loop:
         time = datetime.now()
     
@@ -365,7 +367,7 @@ def class_execute(api_key:str, secret_key:str,
         leverage (int): Binance Futures leverage.
         ps_type (str): Binance Futures margin type.
         last (int): The number of candles from today that you want 
-            to be loaded into your strategy to calculate it.
+            to be loaded into your strategy to calculate it. Default 500, max 1000.
         test (bool, optional): If true, the test version will be run, 
             which instead of using the 'client.new_order' function uses 'client.new_order_test'.
             Test can still close orders.
@@ -405,7 +407,7 @@ def class_group(api_key:str, secret_key:str,
         leverage (int): Binance Futures leverage.
         ps_type (str): Binance Futures margin type.
         last (int): The number of candles from today that you want 
-            to be loaded into your strategy to calculate it.
+            to be loaded into your strategy to calculate it. Default 500, max 1000.
         wrun (bool, optional): Executes the strategy at the start.
         time_offset (float, optional): Argument that indicates when the first close of the day is.
             Calculated in days where hour 0 is added plus 'time_offset' which gives the first close of the day.
@@ -460,6 +462,9 @@ def telegram_bot(api_key:str, chatid:str = ""):
     Telegram bot
 
     Run the Telegram bot by starting a new thread.
+
+    Important:
+        Chatid is required if you want to have detailed system information.
 
     Args:
         api_key (str): Telegram bot api key.

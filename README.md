@@ -45,3 +45,9 @@ with the command 'pip install .[backpyf]'.
 - After the installation process finishes without errors, you can verify if the module has been installed correctly by running some code that imports the newly installed module.
 6. Clean downloaded files
 - After you have verified that the module is working correctly, you can delete the downloaded ZIP file and unzipped folder if you wish.
+
+### Disclaimer
+The above code is only an illustrative example to show how to use backpy in conjunction with backpy-binance.
+It does not represent a recommended investment strategy.
+Cryptocurrency trading involves significant risk, and investment decisions should be made responsibly and with professional advice if necessary.
+Use of this library is at your own risk.
